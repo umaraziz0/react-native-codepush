@@ -1,112 +1,67 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import React, {useState} from 'react';
+import {Text, View, TextInput, ScrollView} from 'react-native';
+import Header from './src/components/Header';
+import TodoItem from './src/components/TodoItem';
+import tw from 'twrnc';
 
-import React from 'react';
-import type {Node} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+export default function App() {
+  const [text, setText] = useState('');
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  const [todos, setTodos] = useState([
+    {id: 1, text: 'Learn React'},
+    {id: 2, text: 'Learn React Native'},
+    {id: 3, text: 'Create Todo App'},
+    {id: 4, text: 'Use Todo App'},
+  ]);
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
+  const [error, setError] = useState('');
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+  const handleChange = item => {
+    setText(item);
+  };
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const createTodo = () => {
+    if (text.length === 0) {
+      setError('Please enter an item.');
+    } else {
+      setTodos(prevTodos => {
+        return [{id: Math.random(), text}, ...prevTodos];
+      });
+
+      setError('');
+    }
+  };
+
+  const removeTodo = id => {
+    setTodos(prevTodos => {
+      return prevTodos.filter(todo => todo.id !== id);
+    });
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
+    <View style={tw`bg-gray-900 h-full`}>
+      <ScrollView>
         <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+
+        <View style={tw`mx-8 my-8`}>
+          <View style={tw`mb-8`}>
+            <TextInput
+              style={tw`text-white border-b border-white text-lg`}
+              placeholder="Add new item..."
+              placeholderTextColor={'#6b7280'}
+              onChangeText={handleChange}
+              onSubmitEditing={() => createTodo()}
+            />
+            {!!error && <Text style={tw`text-red-500 mt-2`}>{error}</Text>}
+          </View>
+
+          <View style={tw`flex flex-col`}>
+            {todos.map(todo => (
+              <TodoItem key={todo.id} item={todo} onPress={removeTodo} />
+            ))}
+          </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
-};
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
-export default App;
+}
